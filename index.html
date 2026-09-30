@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>AquaGro — Hasil Tanam Aquaponik, Sayur & Ikan Segar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --color-dark: #1E3B2B;
+    --color-dark-2: #16301F;
+    --color-accent: #2F7D42;
+    --color-cream: #F4EFE6;
+    --color-border: #E5DFD1;
+    --color-text: #23281F;
+    --color-muted: #6E6C60;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--color-cream); color: var(--color-text); font-family: 'Inter', sans-serif; margin: 0; }
+  .font-display { font-family: 'Playfair Display', Georgia, serif; }
+  .hidden-view { display: none !important; }
+  .card { background: #fff; border: 1px solid var(--color-border); border-radius: 1rem; }
+  .btn-dark { background: var(--color-dark); color: #fff; font-weight: 700; border-radius: .8rem; }
+  .btn-dark:hover { background: var(--color-dark-2); }
+  .btn-accent { background: var(--color-accent); color: #fff; font-weight: 700; border-radius: .8rem; }
+  .pill { padding: .4rem 1rem; border-radius: 999px; font-size: .8rem; font-weight: 600; border: 1px solid var(--color-border); background: #fff; cursor: pointer; white-space: nowrap; }
+  .pill[data-active="true"] { background: var(--color-dark); border-color: var(--color-dark); color: #fff; }
+  .toast-wrap { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 60; display: flex; flex-direction: column; gap: .5rem; width: max-content; max-width: 90vw; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="sticky top-0 z-40 bg-[#1E3B2B] text-white shadow-md">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <button onclick="switchView('home')" class="flex items-center gap-2">
+      <span class="text-2xl">🌱</span>
+      <span class="font-display font-bold text-xl tracking-tight">AquaGro</span>
+    </button>
+    <nav class="flex items-center gap-3 sm:gap-4 text-sm">
+      <button onclick="switchView('orders')" class="hover:opacity-80 flex items-center gap-1">
+        📦 <span>Pesanan Saya</span>
+      </button>
+      <button onclick="switchView('cart')" class="relative hover:opacity-80 flex items-center gap-1 font-semibold">
+        🛒 <span>Keranjang</span>
+        <span id="cart-badge" class="bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.2">0</span>
+      </button>
+      <a href="/admin/index.html" class="bg-white/15 hover:bg-white/25 px-2.5 py-1 rounded-lg text-xs font-semibold">Panel Admin</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===================== 1. DISPLAY PRODUK (BERANDA) ===================== -->
+<main id="view-home">
+  <!-- BANNER ONGKIR & INFO -->
+  <section class="py-8 px-4 text-white text-center bg-[#1E3B2B]">
+    <h1 class="font-display font-bold text-2xl sm:text-4xl mb-2">Hasil Tanam Aquaponik, Sayuran & Ikan Segar</h1>
+    <p class="text-white/80 max-w-xl mx-auto text-xs sm:text-sm">Dipanen fresh langsung dari kolam dan instalasi aquaponik alami ramah lingkungan.</p>
+    <div class="inline-block mt-4 bg-white/10 px-4 py-1.5 rounded-full text-xs font-semibold">
+      🚚 Ongkos Kirim: <strong>Rp 3.500 / km</strong> (Dihitung otomatis via GPS)
+    </div>
+  </section>
+
+  <!-- PRODUK GRID -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+      <h2 class="font-display font-bold text-xl sm:text-2xl text-[#1E3B2B]">Daftar Produk Segar</h2>
+      <div id="category-pills" class="flex gap-2 overflow-x-auto pb-1"></div>
+    </div>
+    <div id="products-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+  </section>
+</main>
+
+<!-- ===================== 2. KERANJANG BELANJA ===================== -->
+<main id="view-cart" class="hidden-view max-w-2xl mx-auto px-4 py-8">
+  <button onclick="switchView('home')" class="text-sm font-semibold mb-4 text-[#2F7D42]">← Lanjut Belanja</button>
+  <h1 class="font-display font-bold text-2xl mb-4">Keranjang Belanja</h1>
+  
+  <div id="cart-items" class="space-y-3 mb-6"></div>
+  <div id="cart-empty" class="hidden-view card p-8 text-center text-sm text-[var(--color-muted)]">
+    Keranjang Anda masih kosong. Silakan pilih produk terlebih dahulu.
+  </div>
+
+  <div id="cart-summary" class="card p-5">
+    <div class="flex justify-between text-sm mb-2">
+      <span class="text-[var(--color-muted)]">Subtotal Produk</span>
+      <span id="cart-subtotal" class="font-bold text-base">Rp 0</span>
+    </div>
+    <p class="text-xs text-[var(--color-muted)] mb-4">* Alamat dan biaya ongkir akan dihitung di halaman berikutnya (Checkout).</p>
+    <button onclick="switchView('checkout')" class="btn-accent w-full py-3 text-sm">Lanjut ke Halaman Checkout →</button>
+  </div>
+</main>
+
+<!-- ===================== 3. HALAMAN CHECKOUT ===================== -->
+<main id="view-checkout" class="hidden-view max-w-2xl mx-auto px-4 py-8">
+  <button onclick="switchView('cart')" class="text-sm font-semibold mb-4 text-[#2F7D42]">← Kembali ke Keranjang</button>
+  <h1 class="font-display font-bold text-2xl mb-5">Halaman Checkout</h1>
+
+  <form onsubmit="handleFormCheckout(event)" class="space-y-4">
+    <!-- FORM IDENTITAS & ALAMAT -->
+    <div class="card p-5 space-y-3">
+      <h2 class="font-bold text-sm text-[#1E3B2B]">1. Informasi Penerima</h2>
+      <div>
+        <label class="text-xs font-semibold block mb-1">Nama Lengkap</label>
+        <input required id="c-name" type="text" placeholder="Contoh: Budi Santoso" class="w-full border p-2.5 rounded-lg text-sm" />
+      </div>
+      <div>
+        <label class="text-xs font-semibold block mb-1">Nomor Telepon / WhatsApp</label>
+        <input required id="c-phone" type="tel" placeholder="08xxxxxxxxxx" class="w-full border p-2.5 rounded-lg text-sm" />
+      </div>
+      <div>
+        <label class="text-xs font-semibold block mb-1">Alamat Lengkap</label>
+        <textarea required id="c-address" rows="2" placeholder="Nama jalan, nomor rumah, RT/RW, kelurahan, kecamatan" class="w-full border p-2.5 rounded-lg text-sm"></textarea>
+      </div>
+    </div>
+
+    <!-- SISTEM GPS & PERHITUNGAN ONGKIR -->
+    <div class="card p-5 space-y-3">
+      <h2 class="font-bold text-sm text-[#1E3B2B]">2. Titik Lokasi & Tarif Pengiriman</h2>
+      <p class="text-xs text-[var(--color-muted)]">Tarif pengiriman adalah <strong>Rp 3.500 per km</strong> dihitung dari kebun AquaGro ke lokasi Anda.</p>
+      
+      <div class="flex flex-col sm:flex-row gap-2">
+        <button type="button" onclick="detectGPSLocation()" class="btn-dark py-2.5 px-3 text-xs flex-1 flex items-center justify-center gap-1.5">
+          <span>📍</span> Gunakan Lokasi GPS Saya Saat Ini
+        </button>
+        <button type="button" onclick="estimateAddressDistance()" class="border border-[var(--color-border)] hover:bg-gray-50 py-2.5 px-3 text-xs rounded-lg font-semibold">
+          Cek dari Teks Alamat
+        </button>
+      </div>
+      
+      <div class="bg-[#F4EFE6] p-3 rounded-lg text-xs space-y-1.5">
+        <div class="flex justify-between">
+          <span class="text-[var(--color-muted)]">Jarak ke Lokasi Pelanggan:</span>
+          <span id="c-distance" class="font-bold">Belum ditentukan</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-[var(--color-muted)]">Ongkos Kirim (Rp 3.500/km):</span>
+          <span id="c-shipping" class="font-bold text-[#2F7D42]">Rp 0</span>
+        </div>
+      </div>
+      <div id="gps-status" class="text-[11px] text-[#2F7D42] font-medium"></div>
+    </div>
+
+    <!-- METODE PEMBAYARAN -->
+    <div class="card p-5 space-y-3">
+      <h2 class="font-bold text-sm text-[#1E3B2B]">3. Metode Pembayaran</h2>
+      <div class="space-y-2 text-xs">
+        <label class="flex items-center gap-2.5 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+          <input type="radio" name="payment_method" value="qris" checked />
+          <div>
+            <span class="font-bold">QRIS Instant</span>
+            <p class="text-[11px] text-[var(--color-muted)]">BCA, Mandiri, GoPay, OVO, ShopeePay, DANA</p>
+          </div>
+        </label>
+        <label class="flex items-center gap-2.5 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+          <input type="radio" name="payment_method" value="ewallet" />
+          <div>
+            <span class="font-bold">E-Wallet Transfer</span>
+            <p class="text-[11px] text-[var(--color-muted)]">Transfer langsung ke nomor DANA / OVO / GoPay</p>
+          </div>
+        </label>
+        <label class="flex items-center gap-2.5 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+          <input type="radio" name="payment_method" value="rekening" />
+          <div>
+            <span class="font-bold">Transfer Rekening Bank</span>
+            <p class="text-[11px] text-[var(--color-muted)]">Bank Central Asia (BCA) / Bank Mandiri</p>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- RINGKASAN TOTAL -->
+    <div class="card p-5">
+      <div class="flex justify-between text-xs mb-1.5"><span class="text-[var(--color-muted)]">Subtotal Belanja:</span><span id="c-subtotal" class="font-semibold">Rp 0</span></div>
+      <div class="flex justify-between text-xs mb-3"><span class="text-[var(--color-muted)]">Ongkos Kirim:</span><span id="c-shipping-val" class="font-semibold">Rp 0</span></div>
+      <div class="flex justify-between text-base font-bold border-t pt-3" style="color:var(--color-dark);">
+        <span>Total Pembayaran:</span><span id="c-total">Rp 0</span>
+      </div>
+      <button type="submit" class="btn-accent w-full py-3.5 text-sm mt-4">Bayar Sekarang & Selesaikan Pesanan</button>
+    </div>
+  </form>
+</main>
+
+<!-- ===================== 4. KONFIRMASI PEMBAYARAN ===================== -->
+<main id="view-confirm" class="hidden-view max-w-md mx-auto px-4 py-10 text-center">
+  <div class="card p-6">
+    <div class="text-4xl mb-2">🎉</div>
+    <h1 class="font-display font-bold text-2xl mb-1">Pesanan Diterima!</h1>
+    <p class="text-xs text-[var(--color-muted)] mb-4">ID Pesanan: <strong id="conf-id"></strong></p>
+
+    <div id="conf-pay-details" class="bg-[#F4EFE6] p-4 rounded-xl text-left text-xs mb-5"></div>
+
+    <button onclick="switchView('orders')" class="btn-dark w-full py-2.5 text-xs mb-2">Lihat Riwayat & Pelacakan Kualitas</button>
+    <button onclick="switchView('home')" class="text-xs text-[var(--color-muted)] underline">Kembali ke Beranda</button>
+  </div>
+</main>
+
+<!-- ===================== 5. RIWAYAT PESANAN & TRACKING KUALITAS ===================== -->
+<main id="view-orders" class="hidden-view max-w-2xl mx-auto px-4 py-8">
+  <button onclick="switchView('home')" class="text-sm font-semibold mb-4 text-[#2F7D42]">← Belanja Lagi</button>
+  <h1 class="font-display font-bold text-2xl mb-4">Riwayat Pembelian & Kualitas Perjalanan</h1>
+  <div id="orders-list" class="space-y-4"></div>
+  <div id="orders-empty" class="hidden-view card p-8 text-center text-sm text-[var(--color-muted)]">
+    Belum ada riwayat pesanan.
+  </div>
+</main>
+
+<div id="toast-wrap" class="toast-wrap"></div>
+
+<script>
+// KOORDINAT PENJUAL (KEBUN AQUAPONIK AQUAGRO)
+const SELLER_COORDS = { lat: -7.2575, lon: 112.7521 };
+const RATE_PER_KM = 3500;
+
+// DATA PRODUK SAYUR & IKAN AQUAPONIK
+const products = [
+  { id: 'p1', name: 'Selada Air Aquaponik', category: 'daun', price: 25000, unit: 'ikat', photo: 'https://images.pexels.com/photos/348689/pexels-photo-348689.jpeg?auto=compress&w=600' },
+  { id: 'p2', name: 'Kangkung Aquaponik', category: 'daun', price: 18000, unit: 'ikat', photo: 'https://images.pexels.com/photos/4199758/pexels-photo-4199758.jpeg?auto=compress&w=600' },
+  { id: 'p3', name: 'Bayam Merah Segar', category: 'daun', price: 28000, unit: 'ikat', photo: 'https://images.pexels.com/photos/15069693/pexels-photo-15069693/free-photo-of-a-row-of-green-plants-growing-in-a-row.jpeg?auto=compress&w=600' },
+  { id: 'p4', name: 'Pakcoy Organik Aquaponik', category: 'daun', price: 32000, unit: 'pot', photo: 'https://images.pexels.com/photos/4199761/pexels-photo-4199761.jpeg?auto=compress&w=600' },
+  { id: 'p5', name: 'Tomat Cherry Aquaponik', category: 'buah', price: 45000, unit: 'kg', photo: 'https://images.pexels.com/photos/3040700/pexels-photo-3040700.jpeg?auto=compress&w=600' },
+  { id: 'p6', name: 'Mint Segar Aquaponik', category: 'herbal', price: 20000, unit: 'ikat', photo: 'https://images.pexels.com/photos/1460872/pexels-photo-1460872.jpeg?auto=compress&w=600' },
+  { id: 'p7', name: 'Ikan Nila Segar Aquaponik', category: 'ikan', price: 42000, unit: 'kg', photo: 'https://images.pexels.com/photos/8969236/pexels-photo-8969236.jpeg?auto=compress&w=600' },
+  { id: 'p8', name: 'Ikan Lele Aquaponik', category: 'ikan', price: 35000, unit: 'kg', photo: 'https://images.pexels.com/photos/2114796/pexels-photo-2114796.jpeg?auto=compress&w=600' }
+];
+
+const categories = [
+  { id: 'all', label: 'Semua Produk' },
+  { id: 'daun', label: '🥬 Sayuran Daun' },
+  { id: 'buah', label: '🍅 Sayur Buah' },
+  { id: 'herbal', label: '🌿 Herbal' },
+  { id: 'ikan', label: '🐟 Ikan Segar' }
+];
+
+let cart = JSON.parse(localStorage.getItem('aquagro_cart') || '[]');
+let currentDistanceKm = 0;
+let activeCat = 'all';
+
+function rupiah(n) { return 'Rp ' + Math.round(n || 0).toLocaleString('id-ID'); }
+
+function showToast(msg) {
+  const w = document.getElementById('toast-wrap');
+  const d = document.createElement('div');
+  d.className = 'px-4 py-2.5 rounded-xl shadow-lg text-white text-xs font-semibold bg-[#1E3B2B]';
+  d.textContent = msg;
+  w.appendChild(d);
+  setTimeout(() => d.remove(), 2500);
+}
+
+function updateCartBadge() {
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+  document.getElementById('cart-badge').textContent = count;
+}
+
+function switchView(name) {
+  ['home', 'cart', 'checkout', 'confirm', 'orders'].forEach(v => {
+    document.getElementById('view-' + v).classList.toggle('hidden-view', v !== name);
+  });
+  if (name === 'cart') renderCart();
+  if (name === 'checkout') renderCheckout();
+  if (name === 'orders') renderOrders();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 1. RENDER PRODUK
+function renderProducts() {
+  const pills = document.getElementById('category-pills');
+  pills.innerHTML = categories.map(c => `
+    <button class="pill" data-active="${c.id === activeCat}" onclick="activeCat='${c.id}'; renderProducts();">${c.label}</button>
+  `).join('');
+
+  const grid = document.getElementById('products-grid');
+  const filtered = products.filter(p => activeCat === 'all' || p.category === activeCat);
+  grid.innerHTML = filtered.map(p => `
+    <div class="card overflow-hidden flex flex-col shadow-sm">
+      <div class="aspect-[4/3] bg-gray-100 overflow-hidden">
+        <img src="${p.photo}" class="w-full h-full object-cover" />
+      </div>
+      <div class="p-3 flex-1 flex flex-col justify-between">
+        <div>
+          <h3 class="font-bold text-sm leading-snug">${p.name}</h3>
+          <div class="text-xs text-[#2F7D42] font-bold mt-1">${rupiah(p.price)} <span class="text-gray-500 font-normal">/ ${p.unit}</span></div>
+        </div>
+        <button onclick="addToCart('${p.id}')" class="btn-accent w-full py-1.5 text-xs mt-3">+ Keranjang</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addToCart(id) {
+  const p = products.find(x => x.id === id);
+  const found = cart.find(x => x.id === id);
+  if (found) found.qty++;
+  else cart.push({ id: p.id, name: p.name, price: p.price, unit: p.unit, qty: 1, category: p.category });
+  localStorage.setItem('aquagro_cart', JSON.stringify(cart));
+  updateCartBadge();
+  showToast(`${p.name} masuk keranjang`);
+}
+
+// 2. RENDER KERANJANG
+function renderCart() {
+  const wrap = document.getElementById('cart-items');
+  const empty = document.getElementById('cart-empty');
+  const summary = document.getElementById('cart-summary');
+  if (!cart.length) {
+    wrap.innerHTML = '';
+    empty.classList.remove('hidden-view');
+    summary.classList.add('hidden-view');
+    return;
+  }
+  empty.classList.add('hidden-view');
+  summary.classList.remove('hidden-view');
+
+  wrap.innerHTML = cart.map(item => `
+    <div class="card p-3.5 flex justify-between items-center text-xs">
+      <div>
+        <div class="font-bold text-sm text-[#1E3B2B]">${item.name}</div>
+        <div class="text-[var(--color-muted)]">${rupiah(item.price)} × ${item.qty}</div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="changeQty('${item.id}', -1)" class="w-6 h-6 border rounded font-bold hover:bg-gray-100">-</button>
+        <span class="font-semibold">${item.qty}</span>
+        <button onclick="changeQty('${item.id}', 1)" class="w-6 h-6 border rounded font-bold hover:bg-gray-100">+</button>
+        <span class="font-bold ml-2 text-sm">${rupiah(item.qty * item.price)}</span>
+      </div>
+    </div>
+  `).join('');
+
+  const sub = cart.reduce((s, i) => s + i.qty * i.price, 0);
+  document.getElementById('cart-subtotal').textContent = rupiah(sub);
+}
+
+function changeQty(id, delta) {
+  const found = cart.find(x => x.id === id);
+  if (!found) return;
+  found.qty += delta;
+  if (found.qty <= 0) cart = cart.filter(x => x.id !== id);
+  localStorage.setItem('aquagro_cart', JSON.stringify(cart));
+  updateCartBadge();
+  renderCart();
+}
+
+// 3. FITUR GPS & JARAK
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+}
+
+function detectGPSLocation() {
+  const st = document.getElementById('gps-status');
+  st.textContent = 'Mendeteksi titik koordinat GPS perangkat Anda...';
+  if (!navigator.geolocation) {
+    st.textContent = 'Perangkat tidak mendukung GPS. Silakan gunakan tombol cek alamat.';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const { latitude, longitude } = pos.coords;
+      const km = Math.max(1, Math.round(calculateDistance(SELLER_COORDS.lat, SELLER_COORDS.lon, latitude, longitude) * 10) / 10);
+      currentDistanceKm = km;
+      st.textContent = `📍 GPS Berhasil! Jarak ke lokasi penjual: ${km} km`;
+      renderCheckout();
+    },
+    err => {
+      st.textContent = 'Izin GPS belum aktif. Jarak diestimasikan standar 4 km.';
+      currentDistanceKm = 4;
+      renderCheckout();
+    },
+    { timeout: 10000 }
+  );
+}
+
+async function estimateAddressDistance() {
+  const addr = document.getElementById('c-address').value.trim();
+  const st = document.getElementById('gps-status');
+  if (!addr) { showToast('Ketik alamat pengiriman lengkap dulu'); return; }
+  st.textContent = 'Mencari rute dari alamat pengiriman...';
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&countrycodes=id&q=${encodeURIComponent(addr)}`);
+    const data = await res.json();
+    if (data && data.length) {
+      const lat = parseFloat(data[0].lat), lon = parseFloat(data[0].lon);
+      currentDistanceKm = Math.max(1, Math.round(calculateDistance(SELLER_COORDS.lat, SELLER_COORDS.lon, lat, lon) * 10) / 10);
+      st.textContent = `📍 Alamat terdeteksi: ${currentDistanceKm} km dari penjual.`;
+    } else {
+      currentDistanceKm = 5;
+      st.textContent = 'Detail alamat tidak terindeks peta, estimasi jarak: 5 km.';
+    }
+  } catch(e) {
+    currentDistanceKm = 5;
+    st.textContent = 'Estimasi jarak fallback: 5 km.';
+  }
+  renderCheckout();
+}
+
+function renderCheckout() {
+  const sub = cart.reduce((s, i) => s + i.qty * i.price, 0);
+  const shipping = currentDistanceKm ? currentDistanceKm * RATE_PER_KM : 0;
+  const total = sub + shipping;
+
+  document.getElementById('c-distance').textContent = currentDistanceKm ? `${currentDistanceKm} km` : 'Belum ditentukan (Klik GPS)';
+  document.getElementById('c-shipping').textContent = rupiah(shipping);
+  document.getElementById('c-subtotal').textContent = rupiah(sub);
+  document.getElementById('c-shipping-val').textContent = rupiah(shipping);
+  document.getElementById('c-total').textContent = rupiah(total);
+}
+
+function handleFormCheckout(e) {
+  e.preventDefault();
+  if (!cart.length) { showToast('Keranjang Anda kosong'); return; }
+  if (!currentDistanceKm) {
+    showToast('Tentukan jarak pengiriman via GPS terlebih dahulu');
+    detectGPSLocation();
+    return;
+  }
+
+  const name = document.getElementById('c-name').value.trim();
+  const phone = document.getElementById('c-phone').value.trim();
+  const address = document.getElementById('c-address').value.trim();
+  const payMethod = document.querySelector('input[name="payment_method"]:checked').value;
+  const subtotal = cart.reduce((s, i) => s + i.qty * i.price, 0);
+  const shipping = currentDistanceKm * RATE_PER_KM;
+  const total = subtotal + shipping;
+
+  const orderId = 'AG' + Date.now().toString().slice(-7);
+  const newOrder = {
+    id: orderId,
+    date: new Date().toISOString(),
+    name, phone, address,
+    distanceKm: currentDistanceKm,
+    items: [...cart],
+    subtotal, shipping, total,
+    paymentMethod: payMethod,
+    status: 'Menunggu Pembayaran',
+    checkpoints: [
+      { stage: 'panen', quality: 'Sangat Segar', time: new Date().toISOString(), note: 'Pesanan masuk. Bahan segar siap dipanen dari kolam/instalasi.' }
+    ]
+  };
+
+  // Simpan ke storage bersama agar langsung terbaca oleh Admin
+  const localOrders = JSON.parse(localStorage.getItem('aquagro_orders') || '[]');
+  localOrders.unshift(newOrder);
+  localStorage.setItem('aquagro_orders', JSON.stringify(localOrders));
+
+  cart = [];
+  localStorage.setItem('aquagro_cart', JSON.stringify(cart));
+  updateCartBadge();
+
+  // Tampilkan Bukti Pembayaran
+  document.getElementById('conf-id').textContent = '#' + orderId;
+  const payBox = document.getElementById('conf-pay-details');
+  if (payMethod === 'qris') {
+    payBox.innerHTML = `
+      <div class="text-center">
+        <p class="font-bold mb-2">Scan QRIS AquaGro</p>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=AQUAGRO-PAY-${orderId}-${total}" class="mx-auto border p-1 rounded-lg mb-2" />
+        <p class="font-bold text-sm text-[#2F7D42]">${rupiah(total)}</p>
+        <p class="text-[10px] text-gray-500 mt-1">Dapat di-scan via BCA Mobile, GoPay, OVO, DANA, ShopeePay.</p>
+      </div>`;
+  } else if (payMethod === 'ewallet') {
+    payBox.innerHTML = `
+      <p class="font-bold mb-1">Transfer E-Wallet:</p>
+      <p>• DANA / GoPay / OVO: <strong>0812-3456-7890</strong> (a.n AquaGro)</p>
+      <p class="mt-2 font-bold">Total Pembayaran: <span class="text-[#2F7D42]">${rupiah(total)}</span></p>
+      <p class="text-[10px] text-gray-500 mt-1">Sertakan berita transfer dengan ID #${orderId}</p>`;
+  } else {
+    payBox.innerHTML = `
+      <p class="font-bold mb-1">Transfer Rekening Bank:</p>
+      <p>• Bank BCA: <strong>8291-039-112</strong> (a.n PT AquaGro Sejahtera)</p>
+      <p>• Bank Mandiri: <strong>142-00-1928374-1</strong></p>
+      <p class="mt-2 font-bold">Total Pembayaran: <span class="text-[#2F7D42]">${rupiah(total)}</span></p>`;
+  }
+
+  switchView('confirm');
+}
+
+// 4. RIWAYAT & PELACAKAN KUALITAS PERJALANAN
+function renderOrders() {
+  const wrap = document.getElementById('orders-list');
+  const empty = document.getElementById('orders-empty');
+  const orders = JSON.parse(localStorage.getItem('aquagro_orders') || '[]');
+
+  if (!orders.length) {
+    wrap.innerHTML = '';
+    empty.classList.remove('hidden-view');
+    return;
+  }
+  empty.classList.add('hidden-view');
+
+  wrap.innerHTML = orders.map(o => `
+    <div class="card p-4">
+      <div class="flex justify-between items-start mb-2">
+        <div>
+          <div class="font-bold text-sm">Pesanan #${o.id}</div>
+          <div class="text-[11px] text-[var(--color-muted)]">${new Date(o.date).toLocaleString('id-ID')} · Jarak: ${o.distanceKm || '-'} km</div>
+        </div>
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold text-white bg-[#2F7D42]">${o.status}</span>
+      </div>
+      <div class="text-xs mb-3 text-gray-700">
+        ${o.items.map(i => `${i.name} (x${i.qty})`).join(', ')}
+      </div>
+
+      <!-- SISTEM KUALITAS PRODUK SELAMA PERJALANAN -->
+      <div class="bg-[#F4EFE6] p-3 rounded-xl border border-[var(--color-border)] mb-2">
+        <div class="text-xs font-bold text-[#1E3B2B] mb-2">🍃 Kondisi & Kualitas Produk Selama Perjalanan:</div>
+        <div class="space-y-2 text-xs">
+          ${(o.checkpoints || []).map(cp => `
+            <div class="flex items-start gap-2 border-l-2 border-[#2F7D42] pl-2">
+              <div>
+                <span class="font-bold text-gray-800">${cp.stage.toUpperCase()}:</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-green-100 text-[#2F7D42] font-bold text-[10px]">${cp.quality || 'Segar'}</span>
+                <p class="text-gray-600 text-[11px] mt-0.5">${cp.note || ''}</p>
+                <span class="text-[9px] text-gray-400">${new Date(cp.time).toLocaleTimeString('id-ID')}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="flex justify-between text-xs font-bold pt-2 border-t">
+        <span>Total Biaya:</span>
+        <span class="text-[#2F7D42]">${rupiah(o.total)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Inisialisasi awal
+renderProducts();
+updateCartBadge();
+</script>
+</body>
+</html>
