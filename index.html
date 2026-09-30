@@ -29,12 +29,18 @@
   .pill { padding: .4rem 1rem; border-radius: 999px; font-size: .8rem; font-weight: 600; border: 1px solid var(--color-border); background: #fff; cursor: pointer; white-space: nowrap; }
   .pill[data-active="true"] { background: var(--color-dark); border-color: var(--color-dark); color: #fff; }
   .toast-wrap { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 60; display: flex; flex-direction: column; gap: .5rem; width: max-content; max-width: 90vw; }
+  @media print {
+    body * { visibility: hidden; }
+    #printable-receipt, #printable-receipt * { visibility: visible; }
+    #printable-receipt { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; }
+    .no-print { display: none !important; }
+  }
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
-<header class="sticky top-0 z-40 bg-[#1E3B2B] text-white shadow-md">
+<header class="sticky top-0 z-40 bg-[#1E3B2B] text-white shadow-md no-print">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
     <button onclick="switchView('home')" class="flex items-center gap-2">
       <span class="text-2xl">🌱</span>
@@ -55,7 +61,6 @@
 
 <!-- ===================== 1. DISPLAY PRODUK (BERANDA) ===================== -->
 <main id="view-home">
-  <!-- BANNER ONGKIR & INFO -->
   <section class="py-8 px-4 text-white text-center bg-[#1E3B2B]">
     <h1 class="font-display font-bold text-2xl sm:text-4xl mb-2">Hasil Tanam Aquaponik, Sayuran & Ikan Segar</h1>
     <p class="text-white/80 max-w-xl mx-auto text-xs sm:text-sm">Dipanen fresh langsung dari kolam dan instalasi aquaponik alami ramah lingkungan.</p>
@@ -64,7 +69,6 @@
     </div>
   </section>
 
-  <!-- PRODUK GRID -->
   <section class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
       <h2 class="font-display font-bold text-xl sm:text-2xl text-[#1E3B2B]">Daftar Produk Segar</h2>
@@ -89,7 +93,7 @@
       <span class="text-[var(--color-muted)]">Subtotal Produk</span>
       <span id="cart-subtotal" class="font-bold text-base">Rp 0</span>
     </div>
-    <p class="text-xs text-[var(--color-muted)] mb-4">* Alamat dan biaya ongkir akan dihitung di halaman berikutnya (Checkout).</p>
+    <p class="text-xs text-[var(--color-muted)] mb-4">* Alamat dan biaya ongkir per km akan dihitung di halaman Checkout.</p>
     <button onclick="switchView('checkout')" class="btn-accent w-full py-3 text-sm">Lanjut ke Halaman Checkout →</button>
   </div>
 </main>
@@ -117,10 +121,10 @@
       </div>
     </div>
 
-    <!-- SISTEM GPS & PERHITUNGAN ONGKIR -->
+    <!-- SISTEM GPS & ONGKIR -->
     <div class="card p-5 space-y-3">
-      <h2 class="font-bold text-sm text-[#1E3B2B]">2. Titik Lokasi & Tarif Pengiriman</h2>
-      <p class="text-xs text-[var(--color-muted)]">Tarif pengiriman adalah <strong>Rp 3.500 per km</strong> dihitung dari kebun AquaGro ke lokasi Anda.</p>
+      <h2 class="font-bold text-sm text-[#1E3B2B]">2. Titik Lokasi & Tarif Pengiriman (Rp 3.500/km)</h2>
+      <p class="text-xs text-[var(--color-muted)]">Hitung jarak otomatis dari Kebun AquaGro ke lokasi tujuan Anda.</p>
       
       <div class="flex flex-col sm:flex-row gap-2">
         <button type="button" onclick="detectGPSLocation()" class="btn-dark py-2.5 px-3 text-xs flex-1 flex items-center justify-center gap-1.5">
@@ -137,38 +141,25 @@
           <span id="c-distance" class="font-bold">Belum ditentukan</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-[var(--color-muted)]">Ongkos Kirim (Rp 3.500/km):</span>
+          <span class="text-[var(--color-muted)]">Ongkos Kirim:</span>
           <span id="c-shipping" class="font-bold text-[#2F7D42]">Rp 0</span>
         </div>
       </div>
       <div id="gps-status" class="text-[11px] text-[#2F7D42] font-medium"></div>
     </div>
 
-    <!-- METODE PEMBAYARAN -->
+    <!-- METODE PEMBAYARAN: REKENING BANK -->
     <div class="card p-5 space-y-3">
-      <h2 class="font-bold text-sm text-[#1E3B2B]">3. Metode Pembayaran</h2>
-      <div class="space-y-2 text-xs">
-        <label class="flex items-center gap-2.5 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-          <input type="radio" name="payment_method" value="qris" checked />
-          <div>
-            <span class="font-bold">QRIS Instant</span>
-            <p class="text-[11px] text-[var(--color-muted)]">BCA, Mandiri, GoPay, OVO, ShopeePay, DANA</p>
-          </div>
-        </label>
-        <label class="flex items-center gap-2.5 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-          <input type="radio" name="payment_method" value="ewallet" />
-          <div>
-            <span class="font-bold">E-Wallet Transfer</span>
-            <p class="text-[11px] text-[var(--color-muted)]">Transfer langsung ke nomor DANA / OVO / GoPay</p>
-          </div>
-        </label>
-        <label class="flex items-center gap-2.5 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-          <input type="radio" name="payment_method" value="rekening" />
-          <div>
-            <span class="font-bold">Transfer Rekening Bank</span>
-            <p class="text-[11px] text-[var(--color-muted)]">Bank Central Asia (BCA) / Bank Mandiri</p>
-          </div>
-        </label>
+      <h2 class="font-bold text-sm text-[#1E3B2B]">3. Metode Pembayaran: Transfer Bank</h2>
+      <div class="p-3.5 border-2 border-[#2F7D42] bg-[#F4EFE6] rounded-xl text-xs space-y-2">
+        <div class="flex items-center gap-2 font-bold text-sm text-[#1E3B2B]">
+          <span>🏦</span> Rekening Resmi AquaGro
+        </div>
+        <div class="border-t pt-2 space-y-1 text-gray-700">
+          <div>• <strong>Bank BCA:</strong> 8291-039-112 (a.n PT AquaGro Sejahtera)</div>
+          <div>• <strong>Bank Mandiri:</strong> 142-00-1928374-1 (a.n PT AquaGro Sejahtera)</div>
+        </div>
+        <p class="text-[11px] text-gray-500 italic">* Resi / invoice digital akan diterbitkan otomatis setelah Anda menekan tombol di bawah.</p>
       </div>
     </div>
 
@@ -179,43 +170,83 @@
       <div class="flex justify-between text-base font-bold border-t pt-3" style="color:var(--color-dark);">
         <span>Total Pembayaran:</span><span id="c-total">Rp 0</span>
       </div>
-      <button type="submit" class="btn-accent w-full py-3.5 text-sm mt-4">Bayar Sekarang & Selesaikan Pesanan</button>
+      <button type="submit" class="btn-accent w-full py-3.5 text-sm mt-4">Konfirmasi Pembayaran & Terbitkan Resi →</button>
     </div>
   </form>
 </main>
 
-<!-- ===================== 4. KONFIRMASI PEMBAYARAN ===================== -->
-<main id="view-confirm" class="hidden-view max-w-md mx-auto px-4 py-10 text-center">
-  <div class="card p-6">
-    <div class="text-4xl mb-2">🎉</div>
-    <h1 class="font-display font-bold text-2xl mb-1">Pesanan Diterima!</h1>
-    <p class="text-xs text-[var(--color-muted)] mb-4">ID Pesanan: <strong id="conf-id"></strong></p>
+<!-- ===================== 4. RESI / BUKTI PESANAN ===================== -->
+<main id="view-confirm" class="hidden-view max-w-xl mx-auto px-4 py-8">
+  <div id="printable-receipt" class="card p-6 border-dashed border-2 shadow-sm bg-white">
+    <!-- KOP RESI -->
+    <div class="border-b pb-4 mb-4 text-center">
+      <span class="text-3xl">🌱</span>
+      <h2 class="font-display font-bold text-xl text-[#1E3B2B]">AQUAGRO INDONESIA</h2>
+      <p class="text-[11px] text-gray-500">Hasil Tanam Aquaponik Segar & Bebas Pestisida</p>
+      <div class="mt-2 inline-block px-3 py-1 rounded bg-green-100 text-green-800 text-xs font-bold">
+        STATUS: MENUNGGU TRANSFER BANK
+      </div>
+    </div>
 
-    <div id="conf-pay-details" class="bg-[#F4EFE6] p-4 rounded-xl text-left text-xs mb-5"></div>
+    <!-- DETAIL RESI -->
+    <div class="text-xs space-y-1.5 border-b pb-3 mb-3">
+      <div class="flex justify-between"><span class="text-gray-500">No. Resi:</span><strong id="resi-id"></strong></div>
+      <div class="flex justify-between"><span class="text-gray-500">Tanggal:</span><span id="resi-date"></span></div>
+      <div class="flex justify-between"><span class="text-gray-500">Nama Penerima:</span><span id="resi-name"></span></div>
+      <div class="flex justify-between"><span class="text-gray-500">No. HP:</span><span id="resi-phone"></span></div>
+      <div class="flex justify-between"><span class="text-gray-500">Alamat Kirim:</span><span id="resi-address" class="text-right max-w-[200px] truncate"></span></div>
+      <div class="flex justify-between"><span class="text-gray-500">Jarak Tempuh:</span><span id="resi-distance"></span></div>
+    </div>
 
-    <button onclick="switchView('orders')" class="btn-dark w-full py-2.5 text-xs mb-2">Lihat Riwayat & Pelacakan Kualitas</button>
-    <button onclick="switchView('home')" class="text-xs text-[var(--color-muted)] underline">Kembali ke Beranda</button>
+    <!-- TABEL ITEM -->
+    <div class="text-xs border-b pb-3 mb-3">
+      <div class="font-bold mb-1.5 text-gray-700">Rincian Barang:</div>
+      <div id="resi-items" class="space-y-1"></div>
+    </div>
+
+    <!-- TOTAL & INSTRUKSI BANK -->
+    <div class="text-xs space-y-1 mb-4">
+      <div class="flex justify-between text-gray-600"><span>Subtotal:</span><span id="resi-subtotal"></span></div>
+      <div class="flex justify-between text-gray-600"><span>Ongkos Kirim (Tarif GPS):</span><span id="resi-shipping"></span></div>
+      <div class="flex justify-between font-bold text-sm text-[#1E3B2B] pt-1.5 border-t">
+        <span>TOTAL TRANSFER:</span>
+        <span id="resi-total" class="text-base text-[#2F7D42]"></span>
+      </div>
+    </div>
+
+    <div class="bg-gray-50 p-3 rounded-lg text-xs space-y-1 border text-gray-600 mb-4">
+      <div class="font-bold text-[#1E3B2B]">Tujuan Transfer Bank:</div>
+      <div>BCA: <strong>8291-039-112</strong> (PT AquaGro Sejahtera)</div>
+      <div>Mandiri: <strong>142-00-1928374-1</strong> (PT AquaGro Sejahtera)</div>
+    </div>
+
+    <div class="text-center text-[10px] text-gray-400">
+      Simpan struk resi ini sebagai bukti pemesanan resmi AquaGro.
+    </div>
+  </div>
+
+  <div class="mt-4 flex gap-2 no-print">
+    <button onclick="window.print()" class="btn-dark flex-1 py-2.5 text-xs">🖨️ Cetak / Simpan PDF Resi</button>
+    <button onclick="switchView('orders')" class="btn-accent flex-1 py-2.5 text-xs">Pantau Kualitas Pengiriman →</button>
   </div>
 </main>
 
-<!-- ===================== 5. RIWAYAT PESANAN & TRACKING KUALITAS ===================== -->
+<!-- ===================== 5. RIWAYAT PESANAN ===================== -->
 <main id="view-orders" class="hidden-view max-w-2xl mx-auto px-4 py-8">
   <button onclick="switchView('home')" class="text-sm font-semibold mb-4 text-[#2F7D42]">← Belanja Lagi</button>
-  <h1 class="font-display font-bold text-2xl mb-4">Riwayat Pembelian & Kualitas Perjalanan</h1>
+  <h1 class="font-display font-bold text-2xl mb-4">Riwayat Pembelian & Pelacakan Kualitas</h1>
   <div id="orders-list" class="space-y-4"></div>
   <div id="orders-empty" class="hidden-view card p-8 text-center text-sm text-[var(--color-muted)]">
     Belum ada riwayat pesanan.
   </div>
 </main>
 
-<div id="toast-wrap" class="toast-wrap"></div>
+<div id="toast-wrap" class="toast-wrap no-print"></div>
 
 <script>
-// KOORDINAT PENJUAL (KEBUN AQUAPONIK AQUAGRO)
 const SELLER_COORDS = { lat: -7.2575, lon: 112.7521 };
 const RATE_PER_KM = 3500;
 
-// DATA PRODUK SAYUR & IKAN AQUAPONIK
 const products = [
   { id: 'p1', name: 'Selada Air Aquaponik', category: 'daun', price: 25000, unit: 'ikat', photo: 'https://images.pexels.com/photos/348689/pexels-photo-348689.jpeg?auto=compress&w=600' },
   { id: 'p2', name: 'Kangkung Aquaponik', category: 'daun', price: 18000, unit: 'ikat', photo: 'https://images.pexels.com/photos/4199758/pexels-photo-4199758.jpeg?auto=compress&w=600' },
@@ -265,7 +296,7 @@ function switchView(name) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 1. RENDER PRODUK
+// 1. PRODUK
 function renderProducts() {
   const pills = document.getElementById('category-pills');
   pills.innerHTML = categories.map(c => `
@@ -300,7 +331,7 @@ function addToCart(id) {
   showToast(`${p.name} masuk keranjang`);
 }
 
-// 2. RENDER KERANJANG
+// 2. KERANJANG
 function renderCart() {
   const wrap = document.getElementById('cart-items');
   const empty = document.getElementById('cart-empty');
@@ -343,7 +374,7 @@ function changeQty(id, delta) {
   renderCart();
 }
 
-// 3. FITUR GPS & JARAK
+// 3. GPS & TARIF
 function calculateDistance(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -354,9 +385,9 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 
 function detectGPSLocation() {
   const st = document.getElementById('gps-status');
-  st.textContent = 'Mendeteksi titik koordinat GPS perangkat Anda...';
+  st.textContent = 'Mendeteksi titik koordinat GPS...';
   if (!navigator.geolocation) {
-    st.textContent = 'Perangkat tidak mendukung GPS. Silakan gunakan tombol cek alamat.';
+    st.textContent = 'Browser tidak mendukung GPS. Gunakan tombol cek teks alamat.';
     return;
   }
   navigator.geolocation.getCurrentPosition(
@@ -364,11 +395,11 @@ function detectGPSLocation() {
       const { latitude, longitude } = pos.coords;
       const km = Math.max(1, Math.round(calculateDistance(SELLER_COORDS.lat, SELLER_COORDS.lon, latitude, longitude) * 10) / 10);
       currentDistanceKm = km;
-      st.textContent = `📍 GPS Berhasil! Jarak ke lokasi penjual: ${km} km`;
+      st.textContent = `📍 GPS Terdeteksi! Jarak ke penjual: ${km} km`;
       renderCheckout();
     },
     err => {
-      st.textContent = 'Izin GPS belum aktif. Jarak diestimasikan standar 4 km.';
+      st.textContent = 'Akses GPS belum diizinkan. Menggunakan jarak estimasi 4 km.';
       currentDistanceKm = 4;
       renderCheckout();
     },
@@ -380,7 +411,7 @@ async function estimateAddressDistance() {
   const addr = document.getElementById('c-address').value.trim();
   const st = document.getElementById('gps-status');
   if (!addr) { showToast('Ketik alamat pengiriman lengkap dulu'); return; }
-  st.textContent = 'Mencari rute dari alamat pengiriman...';
+  st.textContent = 'Mencari rute pengiriman...';
   try {
     const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&countrycodes=id&q=${encodeURIComponent(addr)}`);
     const data = await res.json();
@@ -390,11 +421,11 @@ async function estimateAddressDistance() {
       st.textContent = `📍 Alamat terdeteksi: ${currentDistanceKm} km dari penjual.`;
     } else {
       currentDistanceKm = 5;
-      st.textContent = 'Detail alamat tidak terindeks peta, estimasi jarak: 5 km.';
+      st.textContent = 'Alamat spesifik tidak terbaca peta, estimasi jarak: 5 km.';
     }
   } catch(e) {
     currentDistanceKm = 5;
-    st.textContent = 'Estimasi jarak fallback: 5 km.';
+    st.textContent = 'Jarak estimasi: 5 km.';
   }
   renderCheckout();
 }
@@ -411,11 +442,12 @@ function renderCheckout() {
   document.getElementById('c-total').textContent = rupiah(total);
 }
 
+// 4. CHECKOUT & PENERBITAN RESI
 function handleFormCheckout(e) {
   e.preventDefault();
   if (!cart.length) { showToast('Keranjang Anda kosong'); return; }
   if (!currentDistanceKm) {
-    showToast('Tentukan jarak pengiriman via GPS terlebih dahulu');
+    showToast('Tentukan jarak GPS terlebih dahulu');
     detectGPSLocation();
     return;
   }
@@ -423,64 +455,59 @@ function handleFormCheckout(e) {
   const name = document.getElementById('c-name').value.trim();
   const phone = document.getElementById('c-phone').value.trim();
   const address = document.getElementById('c-address').value.trim();
-  const payMethod = document.querySelector('input[name="payment_method"]:checked').value;
   const subtotal = cart.reduce((s, i) => s + i.qty * i.price, 0);
   const shipping = currentDistanceKm * RATE_PER_KM;
   const total = subtotal + shipping;
 
   const orderId = 'AG' + Date.now().toString().slice(-7);
+  const orderDate = new Date();
+  
   const newOrder = {
     id: orderId,
-    date: new Date().toISOString(),
+    date: orderDate.toISOString(),
     name, phone, address,
     distanceKm: currentDistanceKm,
     items: [...cart],
     subtotal, shipping, total,
-    paymentMethod: payMethod,
+    paymentMethod: 'Transfer Bank (BCA / Mandiri)',
     status: 'Menunggu Pembayaran',
     checkpoints: [
-      { stage: 'panen', quality: 'Sangat Segar', time: new Date().toISOString(), note: 'Pesanan masuk. Bahan segar siap dipanen dari kolam/instalasi.' }
+      { stage: 'panen', quality: 'Sangat Segar', time: orderDate.toISOString(), note: 'Pesanan masuk. Sayur dan ikan siap dipanen langsung.' }
     ]
   };
 
-  // Simpan ke storage bersama agar langsung terbaca oleh Admin
+  // Simpan ke storage bersama
   const localOrders = JSON.parse(localStorage.getItem('aquagro_orders') || '[]');
   localOrders.unshift(newOrder);
   localStorage.setItem('aquagro_orders', JSON.stringify(localOrders));
+
+  // Tampilkan Resi Lengkap
+  document.getElementById('resi-id').textContent = '#' + orderId;
+  document.getElementById('resi-date').textContent = orderDate.toLocaleString('id-ID');
+  document.getElementById('resi-name').textContent = name;
+  document.getElementById('resi-phone').textContent = phone;
+  document.getElementById('resi-address').textContent = address;
+  document.getElementById('resi-distance').textContent = `${currentDistanceKm} km`;
+  document.getElementById('resi-subtotal').textContent = rupiah(subtotal);
+  document.getElementById('resi-shipping').textContent = rupiah(shipping);
+  document.getElementById('resi-total').textContent = rupiah(total);
+
+  const resiItemsWrap = document.getElementById('resi-items');
+  resiItemsWrap.innerHTML = cart.map(i => `
+    <div class="flex justify-between">
+      <span>• ${i.name} (x${i.qty})</span>
+      <span>${rupiah(i.qty * i.price)}</span>
+    </div>
+  `).join('');
 
   cart = [];
   localStorage.setItem('aquagro_cart', JSON.stringify(cart));
   updateCartBadge();
 
-  // Tampilkan Bukti Pembayaran
-  document.getElementById('conf-id').textContent = '#' + orderId;
-  const payBox = document.getElementById('conf-pay-details');
-  if (payMethod === 'qris') {
-    payBox.innerHTML = `
-      <div class="text-center">
-        <p class="font-bold mb-2">Scan QRIS AquaGro</p>
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=AQUAGRO-PAY-${orderId}-${total}" class="mx-auto border p-1 rounded-lg mb-2" />
-        <p class="font-bold text-sm text-[#2F7D42]">${rupiah(total)}</p>
-        <p class="text-[10px] text-gray-500 mt-1">Dapat di-scan via BCA Mobile, GoPay, OVO, DANA, ShopeePay.</p>
-      </div>`;
-  } else if (payMethod === 'ewallet') {
-    payBox.innerHTML = `
-      <p class="font-bold mb-1">Transfer E-Wallet:</p>
-      <p>• DANA / GoPay / OVO: <strong>0812-3456-7890</strong> (a.n AquaGro)</p>
-      <p class="mt-2 font-bold">Total Pembayaran: <span class="text-[#2F7D42]">${rupiah(total)}</span></p>
-      <p class="text-[10px] text-gray-500 mt-1">Sertakan berita transfer dengan ID #${orderId}</p>`;
-  } else {
-    payBox.innerHTML = `
-      <p class="font-bold mb-1">Transfer Rekening Bank:</p>
-      <p>• Bank BCA: <strong>8291-039-112</strong> (a.n PT AquaGro Sejahtera)</p>
-      <p>• Bank Mandiri: <strong>142-00-1928374-1</strong></p>
-      <p class="mt-2 font-bold">Total Pembayaran: <span class="text-[#2F7D42]">${rupiah(total)}</span></p>`;
-  }
-
   switchView('confirm');
 }
 
-// 4. RIWAYAT & PELACAKAN KUALITAS PERJALANAN
+// 5. RIWAYAT & PELACAKAN KUALITAS
 function renderOrders() {
   const wrap = document.getElementById('orders-list');
   const empty = document.getElementById('orders-empty');
@@ -497,7 +524,7 @@ function renderOrders() {
     <div class="card p-4">
       <div class="flex justify-between items-start mb-2">
         <div>
-          <div class="font-bold text-sm">Pesanan #${o.id}</div>
+          <div class="font-bold text-sm">Resi #${o.id}</div>
           <div class="text-[11px] text-[var(--color-muted)]">${new Date(o.date).toLocaleString('id-ID')} · Jarak: ${o.distanceKm || '-'} km</div>
         </div>
         <span class="px-2 py-0.5 rounded-full text-[10px] font-bold text-white bg-[#2F7D42]">${o.status}</span>
@@ -506,9 +533,9 @@ function renderOrders() {
         ${o.items.map(i => `${i.name} (x${i.qty})`).join(', ')}
       </div>
 
-      <!-- SISTEM KUALITAS PRODUK SELAMA PERJALANAN -->
+      <!-- KUALITAS PRODUK SELAMA PERJALANAN -->
       <div class="bg-[#F4EFE6] p-3 rounded-xl border border-[var(--color-border)] mb-2">
-        <div class="text-xs font-bold text-[#1E3B2B] mb-2">🍃 Kondisi & Kualitas Produk Selama Perjalanan:</div>
+        <div class="text-xs font-bold text-[#1E3B2B] mb-2">🍃 Kualitas & Kondisi Selama Perjalanan:</div>
         <div class="space-y-2 text-xs">
           ${(o.checkpoints || []).map(cp => `
             <div class="flex items-start gap-2 border-l-2 border-[#2F7D42] pl-2">
@@ -524,14 +551,13 @@ function renderOrders() {
       </div>
 
       <div class="flex justify-between text-xs font-bold pt-2 border-t">
-        <span>Total Biaya:</span>
+        <span>Total Pembayaran Bank:</span>
         <span class="text-[#2F7D42]">${rupiah(o.total)}</span>
       </div>
     </div>
   `).join('');
 }
 
-// Inisialisasi awal
 renderProducts();
 updateCartBadge();
 </script>
