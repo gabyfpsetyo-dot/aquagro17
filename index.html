@@ -248,20 +248,96 @@ const SELLER_COORDS = { lat: -7.2575, lon: 112.7521 };
 const RATE_PER_KM = 3500;
 
 const products = [
-  { id: 'p1', name: 'Selada Air Aquaponik', category: 'daun', price: 25000, unit: 'ikat', photo: 'https://images.pexels.com/photos/348689/pexels-photo-348689.jpeg?auto=compress&w=600' },
-  { id: 'p2', name: 'Kangkung Aquaponik', category: 'daun', price: 18000, unit: 'ikat', photo: 'https://images.pexels.com/photos/4199758/pexels-photo-4199758.jpeg?auto=compress&w=600' },
-  { id: 'p3', name: 'Bayam Merah Segar', category: 'daun', price: 28000, unit: 'ikat', photo: 'https://images.pexels.com/photos/15069693/pexels-photo-15069693/free-photo-of-a-row-of-green-plants-growing-in-a-row.jpeg?auto=compress&w=600' },
-  { id: 'p4', name: 'Pakcoy Organik Aquaponik', category: 'daun', price: 32000, unit: 'pot', photo: 'https://images.pexels.com/photos/4199761/pexels-photo-4199761.jpeg?auto=compress&w=600' },
-  { id: 'p5', name: 'Tomat Cherry Aquaponik', category: 'buah', price: 45000, unit: 'kg', photo: 'https://images.pexels.com/photos/3040700/pexels-photo-3040700.jpeg?auto=compress&w=600' },
-  { id: 'p6', name: 'Mint Segar Aquaponik', category: 'herbal', price: 20000, unit: 'ikat', photo: 'https://images.pexels.com/photos/1460872/pexels-photo-1460872.jpeg?auto=compress&w=600' },
-  { id: 'p7', name: 'Ikan Nila Segar Aquaponik', category: 'ikan', price: 42000, unit: 'kg', photo: 'https://images.pexels.com/photos/8969236/pexels-photo-8969236.jpeg?auto=compress&w=600' },
-  { id: 'p8', name: 'Ikan Lele Aquaponik', category: 'ikan', price: 35000, unit: 'kg', photo: 'https://images.pexels.com/photos/2114796/pexels-photo-2114796.jpeg?auto=compress&w=600' },
-  { id: 'p9', name: 'Kale Keriting Aquaponik', category: 'daun', price: 38000, unit: 'ikat', photo: 'https://images.unsplash.com/photo-1524179091875-bf99a9a6fa57?auto=format&fit=crop&w=600&q=80' },
-  { id: 'p10', name: 'Basil Hijau Segar', category: 'herbal', price: 22000, unit: 'ikat', photo: 'https://images.unsplash.com/photo-1608686207856-001b95cf60ca?auto=format&fit=crop&w=600&q=80' },
-  { id: 'p11', name: 'Timun Jepang (Kyuri)', category: 'buah', price: 30000, unit: 'kg', photo: 'https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'p12', name: 'Stroberi Aquaponik', category: 'buah', price: 65000, unit: 'pack', photo: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=600&q=80' },
-  { id: 'p13', name: 'Ikan Gurame Hidup', category: 'ikan', price: 55000, unit: 'kg', photo: 'https://images.unsplash.com/photo-1534043464124-3be32fe00099?auto=format&fit=crop&w=600&q=80' },
-  { id: 'p14', name: 'Cabai Rawit Aquaponik', category: 'buah', price: 40000, unit: 'kg', photo: 'https://images.unsplash.com/photo-1588252303782-cb80119abd6d?auto=format&fit=crop&w=600&q=80' }
+  // 1. Selada
+  { 
+    id: 'p1', 
+    name: 'Selada Air Aquaponik', 
+    category: 'daun', 
+    price: 25000, 
+    unit: 'ikat', 
+    photo: 'https://images.pexels.com/photos/348689/pexels-photo-348689.jpeg?auto=compress&w=600' 
+  },
+  // 2. Kangkung
+  { 
+    id: 'p2', 
+    name: 'Kangkung Aquaponik', 
+    category: 'daun', 
+    price: 18000, 
+    unit: 'ikat', 
+    photo: 'https://images.pexels.com/photos/4199758/pexels-photo-4199758.jpeg?auto=compress&w=600' 
+  },
+  // 3. Bayam Merah
+  { 
+    id: 'p3', 
+    name: 'Bayam Merah Segar', 
+    category: 'daun', 
+    price: 28000, 
+    unit: 'ikat', 
+    photo: 'https://images.pexels.com/photos/15069693/pexels-photo-15069693/free-photo-of-a-row-of-green-plants-growing-in-a-row.jpeg?auto=compress&w=600' 
+  },
+  // 4. Pakcoy
+  { 
+    id: 'p4', 
+    name: 'Pakcoy Organik Aquaponik', 
+    category: 'daun', 
+    price: 32000, 
+    unit: 'pot', 
+    photo: 'https://images.pexels.com/photos/4199761/pexels-photo-4199761.jpeg?auto=compress&w=600' 
+  },
+  // 5. Tomat Cherry
+  { 
+    id: 'p5', 
+    name: 'Tomat Cherry Aquaponik', 
+    category: 'buah', 
+    price: 45000, 
+    unit: 'kg', 
+    photo: 'https://images.pexels.com/photos/3040700/pexels-photo-3040700.jpeg?auto=compress&w=600' 
+  },
+  // 6. Daun Mint Segar (Daun herba mint hijau segar)
+  { 
+    id: 'p6', 
+    name: 'Mint Segar Aquaponik', 
+    category: 'herbal', 
+    price: 20000, 
+    unit: 'ikat', 
+    photo: 'https://images.unsplash.com/photo-1628556270448-4d4e4148e1b1?auto=format&fit=crop&w=600&q=80' 
+  },
+  // 7. Ikan Nila Segar (Ikan air tawar segar)
+  { 
+    id: 'p7', 
+    name: 'Ikan Nila Segar Aquaponik', 
+    category: 'ikan', 
+    price: 42000, 
+    unit: 'kg', 
+    photo: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80' 
+  },
+  // 8. Stroberi Segar
+  { 
+    id: 'p8', 
+    name: 'Stroberi Aquaponik', 
+    category: 'buah', 
+    price: 60000, 
+    unit: 'pack', 
+    photo: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=600&q=80' 
+  },
+  // 9. Timun Jepang (Kyuri)
+  { 
+    id: 'p9', 
+    name: 'Timun Jepang (Kyuri)', 
+    category: 'buah', 
+    price: 28000, 
+    unit: 'kg', 
+    photo: 'https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=600&q=80' 
+  },
+  // 10. Cabai Rawit Segar
+  { 
+    id: 'p10', 
+    name: 'Cabai Rawit Aquaponik', 
+    category: 'buah', 
+    price: 42000, 
+    unit: 'kg', 
+    photo: 'https://images.unsplash.com/photo-1588252303782-cb80119abd6d?auto=format&fit=crop&w=600&q=80' 
+  }
 ];
 
 const categories = [
